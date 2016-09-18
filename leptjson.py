@@ -2,13 +2,34 @@
 #-*- coding:utf-8 -*-
 
 from lept_constants import LeptType, LeptParseReturnValue
+import re
 
 class LeptValue:
+    
+    _number = 0
+    _lept_type = LeptType.null
+    
     def __init__(self, lept_type=None):
-        if lept_type == None:
-            self.type = LeptType.null
-        else:
-            self.type = lept_type
+        if lept_type != None:
+            self._lept_type = lept_type
+    
+    @property
+    def lept_type(self):
+        return self._lept_type     
+    
+    @lept_type.setter   
+    def lept_type(self, lept_type):
+        self._lept_type = lept_type
+    
+    @property
+    def number(self):
+        assert(self._lept_type != None and self._lept_type == LeptType.number)
+        return self._number
+        
+    @number.setter
+    def number(self, n):
+        assert(self._lept_type != None and self._lept_type == LeptType.number)
+        self._number = n 
     
 class LeptJson:
     
@@ -22,6 +43,8 @@ class LeptJson:
         parse_return_code = LeptJson.ParseValue()
         if parse_return_code == LeptParseReturnValue.ok and len(LeptJson.lept_context.strip()) != 0:
             return LeptValue(LeptType.null), LeptParseReturnValue.root_not_singular
+        elif parse_return_code != LeptParseReturnValue.ok:
+            return LeptValue(), parse_return_code
         else:
             return LeptJson.lept_value, parse_return_code
 
@@ -34,39 +57,41 @@ class LeptJson:
         if len(LeptJson.lept_context) == 0:
             LeptJson.lept_value.type = LeptType.null
             return LeptParseReturnValue.expect_value
-        elif LeptJson.lept_context[0] == 'n':
-            return LeptJson.ParseNull()
-        elif LeptJson.lept_context[0] == 't':
-            return LeptJson.ParseTrue()
-        elif LeptJson.lept_context[0] == 'f':
-            return LeptJson.ParseFalse()
+        elif LeptJson.lept_context[0] == 'n' or LeptJson.lept_context[0] == 't' or LeptJson.lept_context[0] == 'f':
+            return LeptJson.ParseLiteral()
         else:
-            LeptJson.lept_value.type = LeptType.null
-            return LeptParseReturnValue.invalid_value
+            return LeptJson.ParseNumber()
 
     @classmethod
-    def ParseNull(self):
-        assert(LeptJson.lept_context[0] == 'n')
-        if (LeptJson.lept_context[0:4] != 'null'):
+    def ParseLiteral(self):
+        assert(LeptJson.lept_context[0] == 'n' or LeptJson.lept_context[0] == 't' or LeptJson.lept_context[0] == 'f')
+        jump_len = 0
+        if LeptJson.lept_context[0:4] == 'null':
+            LeptJson.lept_value.lept_type = LeptType.null
+            jump_len = 4
+        elif LeptJson.lept_context[0:4] == 'true':
+            LeptJson.lept_value.lept_type = LeptType.true
+            jump_len = 4
+        elif LeptJson.lept_context[0:5] == 'false':
+            LeptJson.lept_value.lept_type = LeptType.false
+            jump_len = 5
+        else:
             return LeptParseReturnValue.invalid_value
-        LeptJson.lept_context = LeptJson.lept_context[4:]
-        LeptJson.lept_value.type = LeptType.null
+        LeptJson.lept_context = LeptJson.lept_context[jump_len:]
         return LeptParseReturnValue.ok
         
     @classmethod
-    def ParseTrue(self):
-        assert(LeptJson.lept_context[0] == 't')
-        if (LeptJson.lept_context[0:4] != 'true'):
+    def ParseNumber(self):
+        pattern = re.compile(r"^-?(0|[1-9]\d*)(\.\d+)?([Ee][+-]?\d+)?$")
+    
+        if not pattern.match(LeptJson.lept_context):
             return LeptParseReturnValue.invalid_value
-        LeptJson.lept_context = LeptJson.lept_context[4:]
-        LeptJson.lept_value.type = LeptType.true
-        return LeptParseReturnValue.ok
         
-    @classmethod
-    def ParseFalse(self):
-        assert(LeptJson.lept_context[0] == 'f')
-        if (LeptJson.lept_context[0:5] != 'false'):
+        try:
+            number = float(LeptJson.lept_context)
+            LeptJson.lept_context = LeptJson.lept_context[len(str(number)):]
+            LeptJson.lept_value.lept_type = LeptType.number
+            LeptJson.lept_value.number = number
+            return LeptParseReturnValue.ok
+        except Exception as e:
             return LeptParseReturnValue.invalid_value
-        LeptJson.lept_context = LeptJson.lept_context[5:]
-        LeptJson.lept_value.type = LeptType.false
-        return LeptParseReturnValue.ok
