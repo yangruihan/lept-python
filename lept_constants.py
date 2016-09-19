@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 from enum import Enum
+
 
 class LeptType(Enum):
     null = 1
@@ -11,7 +12,8 @@ class LeptType(Enum):
     string = 5
     array = 6
     object = 7
-    
+
+
 class LeptParseReturnValue(Enum):
     ok = 0
     expect_value = 1
