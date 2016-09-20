@@ -19,3 +19,4 @@ class LeptParseReturnValue(Enum):
     expect_value = 1
     invalid_value = 2
     root_not_singular = 3
+    number_too_big = 4

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
+import math
 
 from lept_constants import LeptType, LeptParseReturnValue
 import re
@@ -88,6 +89,10 @@ class LeptJson:
 
         try:
             number = float(LeptJson.lept_context)
+
+            if math.isinf(number):
+                return LeptParseReturnValue.number_too_big
+
             LeptJson.lept_context = LeptJson.lept_context[len(str(number)):]
             LeptJson.lept_value.lept_type = LeptType.number
             LeptJson.lept_value.number = number

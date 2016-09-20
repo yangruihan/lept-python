@@ -51,10 +51,13 @@ class LeptTest(unittest.TestCase):
         self.return_value_and_type_test(LeptParseReturnValue.invalid_value, LeptType.null, "NAN")
         self.return_value_and_type_test(LeptParseReturnValue.invalid_value, LeptType.null, "nan")
 
-    def return_value_and_type_test(self, return_value, type, json, value=None):
+    def test_parse_number_too_big(self):
+        self.return_value_and_type_test(LeptParseReturnValue.number_too_big, LeptType.null, "1e309")
+
+    def return_value_and_type_test(self, return_value, lept_type, json, value=None):
         v, parse_return_code = LeptJson.parse(json)
         self.assertEqual(return_value, parse_return_code)
-        self.assertEqual(type, v.lept_type)
+        self.assertEqual(lept_type, v.lept_type)
 
         if value is not None:
             if v.lept_type == LeptType.number:
