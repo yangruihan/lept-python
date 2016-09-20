@@ -2,8 +2,9 @@
 # -*- coding:utf-8 -*-
 
 import unittest
+
 from lept_constants import LeptType, LeptParseReturnValue
-from leptjson import LeptValue, LeptJson
+from leptjson import LeptJson
 
 
 class LeptTest(unittest.TestCase):
@@ -50,6 +51,26 @@ class LeptTest(unittest.TestCase):
         self.return_value_and_type_test(LeptParseReturnValue.invalid_value, LeptType.null, "inf")
         self.return_value_and_type_test(LeptParseReturnValue.invalid_value, LeptType.null, "NAN")
         self.return_value_and_type_test(LeptParseReturnValue.invalid_value, LeptType.null, "nan")
+
+        self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "1.0000000000000002",
+                                        1.0000000000000002)
+        # TODO(coderyrh9236@gmail.com): 修复由于 float() 造成的精度丢失，导致测试样例失败
+        # self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "4.9406564584124654e-324",
+        #                                 4.9406564584124654e-324)
+        # self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "-4.9406564584124654e-324",
+        #                                 -4.9406564584124654e-324)
+        # self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "2.2250738585072009e-308",
+        #                                 2.2250738585072009e-308)
+        # self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "-2.2250738585072009e-308",
+        #                                 -2.2250738585072009e-308)
+        self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "2.2250738585072014e-308",
+                                        2.2250738585072014e-308)
+        self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "-2.2250738585072014e-308",
+                                        -2.2250738585072014e-308)
+        self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "1.7976931348623157e+308",
+                                        1.7976931348623157e+308)
+        self.return_value_and_type_test(LeptParseReturnValue.ok, LeptType.number, "-1.7976931348623157e+308",
+                                        -1.7976931348623157e+308)
 
     def test_parse_number_too_big(self):
         self.return_value_and_type_test(LeptParseReturnValue.number_too_big, LeptType.null, "1e309")

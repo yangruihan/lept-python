@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 import math
+import re
 
 from lept_constants import LeptType, LeptParseReturnValue
-import re
 
 
 class LeptValue:
@@ -88,6 +88,7 @@ class LeptJson:
             return LeptParseReturnValue.invalid_value
 
         try:
+            # TODO(coderyrh9236@gmail.com): float() 在处理非常大的正数或负数时精度丢失，待修复
             number = float(LeptJson.lept_context)
 
             if math.isinf(number):
